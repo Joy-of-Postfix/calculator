@@ -23,7 +23,7 @@ but there are some **modifications** to Joy-of-Postfix
 - ***split2*** is used for filtering two aggregates as a result
 - ***split*** and ***join*** are for splitted strings in a list
 
-- type the **CALC**-Button to execute a line of functions
+- type the **CALC**-Button to execute a line of functions or a definition
 - type **.** for one output
 - type **.s** for the output of the reversed **stack**
 
