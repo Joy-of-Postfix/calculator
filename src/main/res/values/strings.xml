@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Joy of Postfix</string>
+    <string name="newstack">Newstack</string>
+    <string name="result">△ Result</string>
+    <string name="clear">Clear Input</string>
+    <string name="load">Load External</string>
+    <string name="copy">Copy Input</string>
+</resources>
