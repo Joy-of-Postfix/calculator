@@ -38,5 +38,5 @@ but there are some **modifications** to Joy-of-Postfix
 - **"abc"** is an unicode-string (string)
 - **true** and **false** are booleans (bool)
 - **(x y z)** is a comment
-- **# a y z** is an end-of-line comment
+- **# x y z** is an end-of-line comment
 
