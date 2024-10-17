@@ -21,7 +21,7 @@ but there are some **modifications** to Joy-of-Postfix
 - ***get*** and ***put*** are for dictionary use
 
 - ***split2*** is used for filtering two aggregates as a result
-- ***split*** and ***join*** are for splitted strings
+- ***split*** and ***join*** are for splitted strings in a list
 
 - type the **CALC**-Button to execute a line of functions
 - type **.** for one output
