@@ -13,7 +13,7 @@ but there are some **modifications** to Joy-of-Postfix
 
 - ***' identifier*** is not a char, but a quotation of the identifier
 
-- there are ***no sets*** and ***no integers*** and ***no chars***  (for ***filter*** of strings use ***unpack*** and ***pack**)
+- there are ***no sets*** and ***no integers*** and ***no chars***  (for ***filter*** of strings use ***unpack*** and ***pack***)
 
 - it is only defined for one line with **==** at the second position and an identifier at the first position
 - there is no keyword **DEFINE** and no terminator at the end of the line
