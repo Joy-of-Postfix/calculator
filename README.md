@@ -1,6 +1,6 @@
 # Joy of Postfix Calculator App for Android
 
-![joyapppng](https://github.com/Joy-of-Postfix/calculator/blob/main/pictures/JoyOfPostfix.png)
+![joyapppng](https://github.com/Joy-of-Postfix/calculator/blob/main/pictures/JoyOfPostfixGreen.png)
 
 [APK-File](https://github.com/Joy-of-Postfix/calculator/blob/main/apk/debug/joyapp-debug.apk) can be downloaded
 
@@ -24,7 +24,7 @@ but there are some **modifications** to Joy-of-Postfix
 - ***split*** and ***join*** are for splitted strings in a list
 
 - type the **CALC**-Button to execute a line of functions or a definition
-- type **.** for one output
+- type **.** for one output taken from the top of the stack
 - type **.s** for the output of the reversed **stack**
 
 **IMPORTANT:** with ***dump*** and ***words*** and ***help*** you get an overview of the words or definitions that are used.
