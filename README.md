@@ -26,6 +26,7 @@ but there are some **modifications** to Joy-of-Postfix
 - type the **CALC**-Button to execute a line of functions or a definition
 - type **.** for one output taken from the top of the stack
 - type **.s** for the output of the reversed **stack**
+- for side-effects there is a Monad to use like: [*program*] [*program*] **!**
 
 **IMPORTANT:** with ***dump*** and ***words*** and ***help*** you get an overview of the words or definitions that are used.
 
