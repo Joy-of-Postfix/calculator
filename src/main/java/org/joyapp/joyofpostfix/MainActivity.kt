@@ -311,6 +311,7 @@ class MainActivity : AppCompatActivity() {
                         stack = Cons(!rfile.exists(),stack)
                     } else stack = Cons(false,stack)
                 }
+                /*
                 9.toLong()  -> {  // frename
                     if (stack !is Cons) throw Exception(ctfrename+ctact + estacknull)
                     val newfnm = (stack as Cons).addr
@@ -344,6 +345,7 @@ class MainActivity : AppCompatActivity() {
                         }  }
                     stack = Cons(success,stack)
                 }
+                */
                 10.toLong() -> {  // timestamp
                     val t = System.currentTimeMillis().toDouble()
                     stack = Cons(t,stack)

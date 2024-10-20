@@ -2862,7 +2862,7 @@ class JoyVM {
                 "iffloat == [float] dip2 if\n" +
                 "ifident == [ident] dip2 if\n" +
                 "ifbool  == [bool] dip2 if\n" +
-                "ifconsp == [consp] dip2 if\n" +
+                "ifcons  == [consp] dip2 if\n" +
                 "iflist  == [list] dip2 if\n" +
                 "ifnull  == [null] dip2 if\n" +
                 "init == dup size pred take\n" +
@@ -2891,7 +2891,7 @@ class JoyVM {
                 "savetext == 6 [] '!\n" +
                 "files == 7 [] '!\n" +
                 "fremove == 8 [] '!\n" +
-                "frename == 9 [] '!\n" +
+                //"frename == 9 [] '!\n" +
                 "timestamp == 10 [] '!\n" +
                 "date == 11 [] '!\n" +
                 "dump  == identdump print\n" +
