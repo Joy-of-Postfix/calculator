@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 // documentation to find at:
-const val helpPDF = "https://Joy-of-Postfix.github.io"
+const val helpPDF = "https://github.com/Joy-of-Postfix/calculator/blob/main/JoyOfPostfix.pdf"
 
 // ----- to stop processing
 public var runvm: Boolean = false
@@ -160,10 +160,8 @@ const val ctsum   = "sum"
 const val ctprod  = "prod"
 const val ctget   = "get"
 const val ctput   = "put"
-const val ctsubstr   = "substr"
-const val ctleftstr  = "leftstr"
-const val ctrightstr = "rightstr"
-const val ctindexof  = "indexof"
+const val ctsubstring = "substring"
+const val ctindexof = "indexof"
 const val ctupper = "upper"
 const val ctlower = "lower"
 const val ctcapitalize = "capitalize"
@@ -187,8 +185,6 @@ const val ctif     = "if"
 const val ctbranch = "branch"
 const val ctifte   = "ifte"
 const val ctchoice = "choice"
-const val ctcase  = "case"
-const val ctcond  = "cond"
 const val cttimes = "times"
 const val ctwhile = "while"
 const val ctloop  = "loop"
@@ -401,9 +397,7 @@ class JoyVM {
     var idprod = newidentfunc(ctprod,::fprod)
     var idget = newidentfunc(ctget,::fget)
     var idput = newidentfunc(ctput,::fput)
-    var idsubstr = newidentfunc(ctsubstr,::fsubstr)
-    var idleftstr = newidentfunc(ctleftstr,::fleftstr)
-    var idrightstr = newidentfunc(ctrightstr,::frightstr)
+    var idsubstring = newidentfunc(ctsubstring,::fsubstring)
     var idindexof = newidentfunc(ctindexof,::findexof)
     var idupper = newidentfunc(ctupper,::fupper)
     var idlower = newidentfunc(ctlower,::flower)
@@ -428,8 +422,6 @@ class JoyVM {
     var idbranch = newidentfunc(ctbranch,::fbranch)
     var idifte = newidentfunc(ctifte,::fifte)
     var idchoice = newidentfunc(ctchoice,::fchoice)
-    var idcase = newidentfunc(ctcase,::fcase)
-    var idcond = newidentfunc(ctcond,::fcond)
     var idtimes = newidentfunc(cttimes,::ftimes)
     var idwhile = newidentfunc(ctwhile,::fwhile)
     var idloop = newidentfunc(ctloop,::floop)
@@ -1901,20 +1893,19 @@ class JoyVM {
 
     // concat is also for strings
 
-    //  midstr ?    weil substr(a bis b)
-    fun fsubstr() {
-        if (stack !is Cons) throw Exception(ctsubstr + estacknull)
+    fun fsubstring() {
+        if (stack !is Cons) throw Exception(ctsubstring + estacknull)
         val z = (stack as Cons).addr
         stack = (stack as Cons).decr
-        if (stack !is Cons) throw Exception(ctsubstr + estacknull)
+        if (stack !is Cons) throw Exception(ctsubstring + estacknull)
         val y = (stack as Cons).addr
         stack = (stack as Cons).decr
-        if (stack !is Cons) throw Exception(ctsubstr + estacknull)
+        if (stack !is Cons) throw Exception(ctsubstring + estacknull)
         val x = (stack as Cons).addr
         stack = (stack as Cons).decr
-        if (x !is String) throw Exception(ctsubstr + estringexp)
-        if (y !is Double) throw Exception(ctsubstr + efloatexp)
-        if (z !is Double) throw Exception(ctsubstr + efloatexp)
+        if (x !is String) throw Exception(ctsubstring + estringexp)
+        if (y !is Double) throw Exception(ctsubstring + efloatexp)
+        if (z !is Double) throw Exception(ctsubstring + efloatexp)
         val s: String = x
         var i: Int = Math.round(y).toInt()
         var k: Int = Math.round(z).toInt()
@@ -1925,37 +1916,9 @@ class JoyVM {
         stack = Cons(s.substring(i-1,i+k-1),stack)
     }
 
-    fun fleftstr() {
-        if (stack !is Cons) throw Exception(ctleftstr + estacknull)
-        val y = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (stack !is Cons) throw Exception(ctleftstr + estacknull)
-        val x = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (x !is String) throw Exception(ctleftstr + estringexp)
-        if (y !is Double) throw Exception(ctleftstr + efloatexp)
-        val s: String = x
-        var n: Int = Math.round(y).toInt()
-        if (n < 0) n = 0
-        if (n > s.length) n = s.length
-        stack = Cons(s.take(n),stack)
-    }
-
-    fun frightstr() {
-        if (stack !is Cons) throw Exception(ctrightstr + estacknull)
-        val y = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (stack !is Cons) throw Exception(ctrightstr + estacknull)
-        val x = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (x !is String) throw Exception(ctrightstr + estringexp)
-        if (y !is Double) throw Exception(ctrightstr + efloatexp)
-        val s: String = x
-        var n: Int = Math.round(y).toInt()
-        if (n < 0) n = 0
-        if (n > s.length) n = s.length
-        stack = Cons(s.takeLast(n),stack)
-    }
+    // left
+    // right
+    // mid
 
     fun findexof() {
         if (stack !is Cons) throw Exception(ctindexof + estacknull)
@@ -2277,43 +2240,9 @@ class JoyVM {
             else  -> throw Exception(ctchoice + eboolexp)
         }  }
 
-    fun fcase() {
-        if (stack !is Cons) throw Exception(ctcase + estacknull)
-        val y = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (stack !is Cons) throw Exception(ctcase + estacknull)
-        val x = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (!((y is Cons) or (y is Nil))) throw Exception(ctcase + elistexp)
-        var i: Any = y
-        var z: Any
-        while (i is Cons) {
-            z = i.addr
-            if (z !is Cons) throw Exception(ctcase + econsexp)
-            if (isEq(z.addr,x)) {  efun = z.decr ; eval() ; break  }
-            else i = i.decr
-        }  }
+    fun fcase() {}
 
-    fun fcond() {
-        if (stack !is Cons) throw Exception(ctcond + estacknull)
-        val x = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (!((x is Cons) or (x is Nil))) throw Exception(ctcond + elistexp)
-        val st: Any = stack
-        var i: Any = x
-        var z: Any
-        var b: Any
-        while (i is Cons) {
-            z = i.addr
-            if (z !is Cons) throw Exception(ctcond + econsexp)
-            stack = st ; efun = z.addr ; eval()
-            if (stack !is Cons) throw Exception(ctcond + estacknull)
-            b = (stack as Cons).addr
-            stack = (stack as Cons).decr  // ???
-            if (b !is Boolean) throw Exception(ctcond + eboolexp)
-            if (b) {  stack = st ; efun = z.decr ; eval() ; break  }
-            else i = i.decr
-        }  }
+    fun fcond() {}
 
     fun ftimes() {     // val st: Any = stack ???
         if (stack !is Cons) throw Exception(cttimes + estacknull)
@@ -2529,22 +2458,6 @@ class JoyVM {
         stack = Cons(r2,Cons(r1,st))
     }
 
-    fun primrecnum(n: Double, x: Double, i: Any, c: Any) {
-        if (n<=x) {
-            stack = Cons(n,stack)
-            primrecnum((n+1.0),x,i,c)
-            efun = c ; eval()
-        } else {  efun = i ; eval()  }
-    }
-
-    fun primreclist(k: Any, i: Any, c: Any) {
-        if (k is Cons) {
-            stack = Cons(k.addr,stack)
-            primreclist(k.decr,i,c)
-            efun = c ; eval()
-        } else {  efun = i ; eval()  }
-    }
-
     fun fprimrec() {
         if (stack !is Cons) throw Exception(ctprimrec + estacknull)
         val c = (stack as Cons).addr
@@ -2558,10 +2471,21 @@ class JoyVM {
         val st: Any = stack
         if (x is Double) {
             val z: Double = Math.round(x).toDouble()
-            val n: Double = 1.0
-            primrecnum(n,z,i,c)
+            var n: Double = 1.0
+            efun = i ; eval()
+            while (n <= z) {
+                stack = Cons(n,stack)
+                efun = c ; eval()
+                n = n + 1.0
+            }
         } else if ((x is Cons) or (x is Nil)) {
-            primreclist(x,i,c)
+            var k: Any = x
+            efun = i ; eval()
+            while (k is Cons) {
+                stack = Cons(k.addr,stack)
+                efun = c ; eval()
+                k = k.decr
+            }
         } else throw Exception(ctprimrec + elistornumexp)
         if (stack !is Cons) throw Exception(ctprimrec + estacknull)
         val r = (stack as Cons).addr
@@ -2949,7 +2873,6 @@ class JoyVM {
                 "swapd == [swap] dip\n" +
                 "popd == [pop] dip\n" +
                 "dupd == [dup] dip\n" +
-                "rem == mod\n" +
                 "root == 1 swap / pow\n" +   // 27 3 root ???
                 "reci == 1 swap /\n" +
                 "fact == iota 1 [*] fold\n" +  // prod ?
@@ -2968,7 +2891,6 @@ class JoyVM {
                 "savetext == 6 [] '!\n" +
                 "files == 7 [] '!\n" +
                 "fremove == 8 [] '!\n" +
-                "fcopyto == swap [loadtext] [savetext] '!\n" +
                 //"frename == 9 [] '!\n" +
                 "timestamp == 10 [] '!\n" +
                 "date == 11 [] '!\n" +
@@ -3001,8 +2923,7 @@ fun main() {
         //vm.calc("\"abc;def;ghi;jkl;\" \";\" split")
 
         //vm.calc("peter == [id 2 dup +]") // × ÷ 10 [dup dup 0 > [1 -] [10 0 / break] if] loop
-        vm.calc("\"abcdefghijklmnopqrstuvwxyz\" 30 rightstr")  //  ""
-        //vm.calc("identlist reverse [tostr 13 chr 10 chr concat concat] map pack")
+        vm.calc("test")
 
         //runvm = true
         //while (isTopIdent(stack,vm.idact)) {  doAct()  }
