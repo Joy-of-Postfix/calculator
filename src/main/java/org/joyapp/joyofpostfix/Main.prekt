@@ -2933,11 +2933,6 @@ class JoyVM {
 
     fun prelude(): String {
         return  "\n" +
-                "trans == dup first [] = [pop []] [dup [first] map swap [rest] map trans cons] if\n" +
-                "set == 2 index 0 <= [pop pop pop ' undef] [setrec] if\n" +
-                "setrec == 2 index 1 = [3 index [] = [dup []] [dup 4 index rest] if cons] [3 index [] = " +
-                "[[] 4 index 4 index 1 - 4 index] [3 index first 4 index rest 4 index 1 - 4 index] " +
-                "if setrec cons] if [pop pop pop] dip\n" +
                 "ifundef  == [undef] dip2 if\n" +
                 "ifstring == [string] dip2 if\n" +
                 "iffloat == [float] dip2 if\n" +
@@ -3006,7 +3001,7 @@ fun main() {
         //vm.calc("\"abc;def;ghi;jkl;\" \";\" split")
 
         //vm.calc("peter == [id 2 dup +]") // × ÷ 10 [dup dup 0 > [1 -] [10 0 / break] if] loop
-        vm.calc("[1 2 3 4 5 6 7 8 9] -5 333 set")  //  ""
+        vm.calc("\"abcdefghijklmnopqrstuvwxyz\" 30 rightstr")  //  ""
         //vm.calc("identlist reverse [tostr 13 chr 10 chr concat concat] map pack")
 
         //runvm = true
