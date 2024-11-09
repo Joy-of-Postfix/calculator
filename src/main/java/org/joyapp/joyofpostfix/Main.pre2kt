@@ -2933,13 +2933,11 @@ class JoyVM {
 
     fun prelude(): String {
         return  "\n" +
-                "trans == dup first [ ] = [pop [ ]] [dup [first] map swap [rest] map trans cons] if\n" +
+                "trans == dup first [] = [pop []] [dup [first] map swap [rest] map trans cons] if\n" +
                 "set == 2 index 0 <= [pop pop pop ' undef] [setrec] if\n" +
                 "setrec == 2 index 1 = [3 index [] = [dup []] [dup 4 index rest] if cons] [3 index [] = " +
                 "[[] 4 index 4 index 1 - 4 index] [3 index first 4 index rest 4 index 1 - 4 index] " +
                 "if setrec cons] if [pop pop pop] dip\n" +
-                "collect == [ ] swap [cons] times\n" +
-                "copy == dup [dup 1 + index swap] times pop\n" +
                 "ifundef  == [undef] dip2 if\n" +
                 "ifstring == [string] dip2 if\n" +
                 "iffloat == [float] dip2 if\n" +
@@ -2960,25 +2958,25 @@ class JoyVM {
                 "root == 1 swap / pow\n" +   // 27 3 root ???
                 "reci == 1 swap /\n" +
                 "fact == iota 1 [*] fold\n" +  // prod ?
-                "Y == dup [ ] cons [Y] concat swap i\n" +
-                "clear == [ ] unstack\n" +  // newstack ?
+                "Y == dup [] cons [Y] concat swap i\n" +
+                "clear == [] unstack\n" +  // newstack ?
                 "enconcat == [swap] dip cons concat\n" +
-                "qsort == [small] [ ] [uncons [>] split2] [enconcat] binrec\n" +
-                "pair == [ ] cons cons\n" +
+                "qsort == [small] [] [uncons [>] split2] [enconcat] binrec\n" +
+                "pair == [] cons cons\n" +
                 "unpair == uncons uncons pop\n" +
                 ".s == stack reverse print\n" +
-                ". == 1 [ ] '!\n" +
-                "print == 2 [ ] '!\n" +
-                "load  == 3 [ ] '!\n" +
-                "save  == 4 [ ] '!\n" +
-                "loadtext == 5 [ ] '!\n" +
-                "savetext == 6 [ ] '!\n" +
-                "files == 7 [ ] '!\n" +
-                "fremove == 8 [ ] '!\n" +
+                ". == 1 [] '!\n" +
+                "print == 2 [] '!\n" +
+                "load  == 3 [] '!\n" +
+                "save  == 4 [] '!\n" +
+                "loadtext == 5 [] '!\n" +
+                "savetext == 6 [] '!\n" +
+                "files == 7 [] '!\n" +
+                "fremove == 8 [] '!\n" +
                 "fcopyto == swap [loadtext] [savetext] '!\n" +
-                //"frename == 9 [ ] '!\n" +
-                "timestamp == 10 [ ] '!\n" +
-                "date == 11 [ ] '!\n" +
+                //"frename == 9 [] '!\n" +
+                "timestamp == 10 [] '!\n" +
+                "date == 11 [] '!\n" +
                 "dump  == identdump print\n" +
                 "words == identlist print\n" +
                 "help  == helpinfo print\n"
@@ -3008,7 +3006,7 @@ fun main() {
         //vm.calc("\"abc;def;ghi;jkl;\" \";\" split")
 
         //vm.calc("peter == [id 2 dup +]") // × ÷ 10 [dup dup 0 > [1 -] [10 0 / break] if] loop
-        vm.calc("10 20 30 40 50 3 copy")  //  ""
+        vm.calc("[1 2 3 4 5 6 7 8 9] -5 333 set")  //  ""
         //vm.calc("identlist reverse [tostr 13 chr 10 chr concat concat] map pack")
 
         //runvm = true
