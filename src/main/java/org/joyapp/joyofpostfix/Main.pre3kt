@@ -158,7 +158,6 @@ const val ctiota    = "iota"
 const val ctfromto  = "fromto"
 const val ctsum   = "sum"
 const val ctprod  = "prod"
-const val ctzip   = "zip"
 const val ctget   = "get"
 const val ctput   = "put"
 const val ctsubstr   = "substr"
@@ -400,7 +399,6 @@ class JoyVM {
     var idfromto = newidentfunc(ctfromto,::ffromto)
     var idsum = newidentfunc(ctsum,::fsum)
     var idprod = newidentfunc(ctprod,::fprod)
-    var idzip = newidentfunc(ctzip,::fzip)
     var idget = newidentfunc(ctget,::fget)
     var idput = newidentfunc(ctput,::fput)
     var idsubstr = newidentfunc(ctsubstr,::fsubstr)
@@ -1834,26 +1832,6 @@ class JoyVM {
         stack = Cons(prod,stack)
     }
 
-    fun fzip() {
-        if (stack !is Cons) throw Exception(ctzip + estacknull)
-        val y = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (stack !is Cons) throw Exception(ctzip + estacknull)
-        val x = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (!((x is Cons) or (x is Nil))) throw Exception(ctzip + elistexp)
-        if (!((y is Cons) or (y is Nil))) throw Exception(ctzip + elistexp)
-        var i: Any = x
-        var k: Any = y
-        var res: Any = Nil()
-        while ((i is Cons) and (k is Cons)) {
-            res = Cons(Cons((i as Cons).addr,Cons((k as Cons).addr,Nil())),res)
-            i = i.decr
-            k = k.decr
-        }
-        stack = Cons(nreverse(res),stack)
-    }
-
     fun fget() {
         if (stack !is Cons) throw Exception(ctget + estacknull)
         val y = (stack as Cons).addr
@@ -3001,10 +2979,9 @@ class JoyVM {
                 //"frename == 9 [ ] '!\n" +
                 "timestamp == 10 [ ] '!\n" +
                 "date == 11 [ ] '!\n" +
-                "viewurl == 12 [ ] '!\n" +
                 "dump  == identdump print\n" +
                 "words == identlist print\n" +
-                "help  == helpinfo viewurl\n"
+                "help  == helpinfo print\n"
 
     }
 
@@ -3031,7 +3008,7 @@ fun main() {
         //vm.calc("\"abc;def;ghi;jkl;\" \";\" split")
 
         //vm.calc("peter == [id 2 dup +]") // × ÷ 10 [dup dup 0 > [1 -] [10 0 / break] if] loop
-        vm.calc("help")  //  ""
+        vm.calc("10 20 30 40 50 3 copy")  //  ""
         //vm.calc("identlist reverse [tostr 13 chr 10 chr concat concat] map pack")
 
         //runvm = true

@@ -4,6 +4,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Selection
@@ -31,6 +32,7 @@ const val ctloadtext = "loadtext"
 const val ctsavetext = "savetext"
 const val ctfremove  = "fremove"
 const val ctfrename  = "frename"
+const val ctviewurl  = "viewurl"
 
 // ----- error messages
 const val errinfname =      "  >>>  error in filename"
@@ -353,6 +355,17 @@ class MainActivity : AppCompatActivity() {
                 11.toLong() -> {  // date
                     val d = Date().toString()
                     stack = Cons(d,stack)
+                }
+                12.toLong() -> {  // viewurl
+                    if (stack !is Cons) throw Exception(ctviewurl+ctact + estacknull)
+                    var url = (stack as Cons).addr
+                    stack = (stack as Cons).decr
+                    if (url !is String) throw Exception(ctviewurl+ctact + estringexp)
+                    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                        url = "http://$url"
+                    }
+                    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    startActivity(browserIntent)
                 }
                 else -> {  throw Exception(edoacterr+" - "+n.toString())  }
             }
