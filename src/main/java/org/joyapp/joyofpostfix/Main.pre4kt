@@ -152,15 +152,13 @@ const val cttake  = "take"
 const val ctdrop  = "drop"
 const val ctconcat  = "concat"
 const val ctswoncat = "swoncat"
-const val ctfind   = "find"
-const val ctcount  = "count"
-const val ctcollect = "collect"
-const val ctiota   = "iota"
-const val ctfromto = "fromto"
-const val ctsum    = "sum"
-const val ctprod   = "prod"
-const val ctzip    = "zip"
-const val ctunlist = "unlist"
+const val ctfind    = "find"
+const val ctcount   = "count"
+const val ctiota    = "iota"
+const val ctfromto  = "fromto"
+const val ctsum   = "sum"
+const val ctprod  = "prod"
+const val ctzip   = "zip"
 const val ctget   = "get"
 const val ctput   = "put"
 const val ctsubstr   = "substr"
@@ -183,7 +181,6 @@ const val ctjoin  = "join"
 const val cti     = "i"
 const val ctdip   = "dip"
 const val ctdip2  = "dip2"
-const val ctdictapp = "dictapp"
 const val ctnullary = "nullary"
 const val ctdo     = "do"
 const val ctreturn = "return"
@@ -202,7 +199,6 @@ const val ctmap   = "map"
 const val ctfold  = "fold"
 const val ctfilter = "filter"
 const val ctsplit2 = "split2"
-const val ctconstr1 = "constr1"
 const val ctcleave = "cleave"
 const val ctprimrec = "primrec"
 const val cttailrec = "tailrec"
@@ -400,13 +396,11 @@ class JoyVM {
     var idswoncat = newidentfunc(ctswoncat,::fswoncat)
     var idfind = newidentfunc(ctfind,::ffind)
     var idcount = newidentfunc(ctcount,::fcount)
-    var idcollect = newidentfunc(ctcollect,::fcollect)
     var idiota = newidentfunc(ctiota,::fiota)
     var idfromto = newidentfunc(ctfromto,::ffromto)
     var idsum = newidentfunc(ctsum,::fsum)
     var idprod = newidentfunc(ctprod,::fprod)
     var idzip = newidentfunc(ctzip,::fzip)
-    var idunlist = newidentfunc(ctunlist,::funlist)
     var idget = newidentfunc(ctget,::fget)
     var idput = newidentfunc(ctput,::fput)
     var idsubstr = newidentfunc(ctsubstr,::fsubstr)
@@ -429,7 +423,6 @@ class JoyVM {
     var idi   = newidentfunc(cti,::fi)
     var iddip = newidentfunc(ctdip,::fdip)
     var iddip2 = newidentfunc(ctdip2,::fdip2)
-    var iddictapp = newidentfunc(ctdictapp,::fdictapp)
     var idnullary = newidentfunc(ctnullary,::fnullary)
     var iddo = newidentfunc(ctdo,::fdo)
     var idreturn = newidentfunc(ctreturn,::freturn)
@@ -448,7 +441,6 @@ class JoyVM {
     var idfold = newidentfunc(ctfold,::ffold)
     var idfilter = newidentfunc(ctfilter,::ffilter)
     var idsplit2 = newidentfunc(ctsplit2,::fsplit2)
-    var idconstr1 = newidentfunc(ctconstr1,::fconstr1)
     var idcleave = newidentfunc(ctcleave,::fcleave)
     var idprimrec = newidentfunc(ctprimrec,::fprimrec)
     var idtailrec = newidentfunc(cttailrec,::ftailrec)
@@ -1782,24 +1774,6 @@ class JoyVM {
         stack = Cons(n,stack)
     }
 
-    fun fcollect() {
-        if (stack !is Cons) throw Exception(ctcollect + estacknull)
-        val x = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (x !is Double) throw Exception(ctcollect + efloatexp)
-        var n: Long = Math.round(x)
-        var z: Any
-        var res: Any = Nil()
-        while (n > 0) {
-            if (stack !is Cons) throw Exception(ctcollect + estacknull)
-            z = (stack as Cons).addr
-            stack = (stack as Cons).decr
-            res = Cons(z,res)
-            n = n - 1
-        }
-        stack = Cons(res,stack)
-    }
-
     fun fiota() {
         if (stack !is Cons) throw Exception(ctiota + estacknull)
         val x = (stack as Cons).addr
@@ -1879,18 +1853,6 @@ class JoyVM {
         }
         stack = Cons(nreverse(res),stack)
     }
-
-    //  [x y z ... k] unlist  -->  x y z ... k
-    fun funlist() {
-        if (stack !is Cons) throw Exception(ctunlist + estacknull)
-        val x = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (!((x is Cons) or (x is Nil))) throw Exception(ctunlist + elistexp)
-        var i: Any = x
-        while (i is Cons) {
-            stack = Cons(i.addr,stack)
-            i = i.decr
-        }  }
 
     fun fget() {
         if (stack !is Cons) throw Exception(ctget + estacknull)
@@ -2225,29 +2187,6 @@ class JoyVM {
         stack = Cons(y,Cons(x,stack))
     }
 
-    //  x1 x2 ... xn [i1 i2 ... in] [program] dictapp  -->  [dict] [program] i
-    fun fdictapp() {
-        if (stack !is Cons) throw Exception(ctdictapp + estacknull)
-        val z = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (stack !is Cons) throw Exception(ctdictapp + estacknull)
-        val y = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (!((y is Cons) or (y is Nil))) throw Exception(ctdictapp + elistexp)
-        var i: Any = creverse(y)
-        var x: Any
-        var d: Any = Nil()
-        while (i is Cons) {
-            if (stack !is Cons) throw Exception(ctdictapp + estacknull)
-            x = (stack as Cons).addr
-            stack = (stack as Cons).decr
-            d = Cons(i.addr,Cons(x,d))
-            i = i.decr
-        }
-        stack = Cons(d,stack)
-        efun = z  ;  eval()
-    }
-
     //  <stack> [ ... x ] nullary  --  <stack> x
     fun fnullary() {
         if (stack !is Cons) throw Exception(ctnullary + estacknull)
@@ -2397,8 +2336,6 @@ class JoyVM {
             if (b) {  stack = st ; efun = z.decr ; eval() ; break  }
             else i = i.decr
         }  }
-
-
 
     fun ftimes() {     // val st: Any = stack ???
         if (stack !is Cons) throw Exception(cttimes + estacknull)
@@ -2583,31 +2520,6 @@ class JoyVM {
             i = i.decr
         }
         stack = Cons(nreverse(a2),Cons(nreverse(a1),st))
-    }
-
-    //  x [[p1] [p2] ... [pn]] constr1  --> list
-    fun fconstr1() {
-        if (stack !is Cons) throw Exception(ctconstr1 + estacknull)
-        val y = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (stack !is Cons) throw Exception(ctconstr1 + estacknull)
-        val x = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (!((y is Cons) or (y is Nil))) throw Exception(ctconstr1 + elistexp)
-        val st: Any = stack
-        var i: Any = y
-        var z: Any
-        var res: Any = Nil()
-        while (i is Cons) {
-            stack = Cons(x,st)
-            efun = i.addr  ;  eval()
-            if (stack !is Cons) throw Exception(ctconstr1 + estacknull)
-            z = (stack as Cons).addr
-            //stack = (stack as Cons).decr  // ???
-            res = Cons(z,res)
-            i = i.decr
-        }
-        stack = Cons(nreverse(res),st)
     }
 
     // X [P1] [P2] -> R1 R2
@@ -3048,7 +2960,7 @@ class JoyVM {
                 "setrec == 2 index 1 = [3 index [] = [dup []] [dup 4 index rest] if cons] [3 index [] = " +
                 "[[] 4 index 4 index 1 - 4 index] [3 index first 4 index rest 4 index 1 - 4 index] " +
                 "if setrec cons] if [pop pop pop] dip\n" +
-                //"collect == [ ] swap [cons] times\n" +
+                "collect == [ ] swap [cons] times\n" +
                 "copy == dup [dup 1 + index swap] times pop\n" +
                 "ifundef  == [undef] dip2 if\n" +
                 "ifstring == [string] dip2 if\n" +
@@ -3119,7 +3031,7 @@ fun main() {
         //vm.calc("\"abc;def;ghi;jkl;\" \";\" split")
 
         //vm.calc("peter == [id 2 dup +]") // × ÷ 10 [dup dup 0 > [1 -] [10 0 / break] if] loop
-        vm.calc("10 20 30 40 50 3 collect reverse unlist 60 70") //("333 444 10 20 30 [a b c] [[['c get sq] ['b get sq] ['a get sq]] constr1] dictapp unlist")  //  ""
+        vm.calc("help")  //  ""
         //vm.calc("identlist reverse [tostr 13 chr 10 chr concat concat] map pack")
 
         //runvm = true
