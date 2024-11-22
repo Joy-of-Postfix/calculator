@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 // documentation to find at:
-const val helpurl = "https://Joy-of-Postfix.github.io"
+const val helpPDF = "https://Joy-of-Postfix.github.io"
 
 // ----- to stop processing
 public var runvm: Boolean = false
@@ -161,10 +161,9 @@ const val ctsum    = "sum"
 const val ctprod   = "prod"
 const val ctzip    = "zip"
 const val ctunlist = "unlist"
-const val ctnewdict = "newdict"
 const val ctget   = "get"
 const val ctput   = "put"
-const val ctmidstr   = "midstr"
+const val ctsubstr   = "substr"
 const val ctleftstr  = "leftstr"
 const val ctrightstr = "rightstr"
 const val ctindexof  = "indexof"
@@ -184,13 +183,10 @@ const val ctjoin  = "join"
 const val cti     = "i"
 const val ctdip   = "dip"
 const val ctdip2  = "dip2"
+const val ctdictapp = "dictapp"
 const val ctnullary = "nullary"
 const val ctdo     = "do"
 const val ctreturn = "return"
-const val ctunary  = "unary"
-const val ctunary2 = "unary2"
-const val ctunary3 = "unary3"
-const val ctunary4 = "unary4"
 const val ctif     = "if"
 const val ctbranch = "branch"
 const val ctifte   = "ifte"
@@ -411,10 +407,9 @@ class JoyVM {
     var idprod = newidentfunc(ctprod,::fprod)
     var idzip = newidentfunc(ctzip,::fzip)
     var idunlist = newidentfunc(ctunlist,::funlist)
-    var idnewdict = newidentfunc(ctnewdict,::fnewdict)
     var idget = newidentfunc(ctget,::fget)
     var idput = newidentfunc(ctput,::fput)
-    var idmidstr = newidentfunc(ctmidstr,::fmidstr)
+    var idsubstr = newidentfunc(ctsubstr,::fsubstr)
     var idleftstr = newidentfunc(ctleftstr,::fleftstr)
     var idrightstr = newidentfunc(ctrightstr,::frightstr)
     var idindexof = newidentfunc(ctindexof,::findexof)
@@ -434,13 +429,10 @@ class JoyVM {
     var idi   = newidentfunc(cti,::fi)
     var iddip = newidentfunc(ctdip,::fdip)
     var iddip2 = newidentfunc(ctdip2,::fdip2)
+    var iddictapp = newidentfunc(ctdictapp,::fdictapp)
     var idnullary = newidentfunc(ctnullary,::fnullary)
     var iddo = newidentfunc(ctdo,::fdo)
     var idreturn = newidentfunc(ctreturn,::freturn)
-    var idunary  = newidentfunc(ctunary, ::funary)
-    var idunary2 = newidentfunc(ctunary2,::funary2)
-    var idunary3 = newidentfunc(ctunary3,::funary3)
-    var idunary4 = newidentfunc(ctunary4,::funary4)
     var idif = newidentfunc(ctif,::fif)
     var idbranch = newidentfunc(ctbranch,::fbranch)
     var idifte = newidentfunc(ctifte,::fifte)
@@ -1900,25 +1892,6 @@ class JoyVM {
             i = i.decr
         }  }
 
-    //  x1 x2 ... xn [i1 i2 ... in] newdict  -->  [dict]
-    fun fnewdict() {
-        if (stack !is Cons) throw Exception(ctnewdict + estacknull)
-        val y = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (!((y is Cons) or (y is Nil))) throw Exception(ctnewdict + elistexp)
-        var i: Any = creverse(y)
-        var x: Any
-        var d: Any = Nil()
-        while (i is Cons) {
-            if (stack !is Cons) throw Exception(ctnewdict + estacknull)
-            x = (stack as Cons).addr
-            stack = (stack as Cons).decr
-            d = Cons(i.addr,Cons(x,d))
-            i = i.decr
-        }
-        stack = Cons(d,stack)
-    }
-
     fun fget() {
         if (stack !is Cons) throw Exception(ctget + estacknull)
         val y = (stack as Cons).addr
@@ -1989,19 +1962,19 @@ class JoyVM {
     // concat is also for strings
 
     //  midstr ?    weil substr(a bis b)
-    fun fmidstr() {
-        if (stack !is Cons) throw Exception(ctmidstr + estacknull)
+    fun fsubstr() {
+        if (stack !is Cons) throw Exception(ctsubstr + estacknull)
         val z = (stack as Cons).addr
         stack = (stack as Cons).decr
-        if (stack !is Cons) throw Exception(ctmidstr + estacknull)
+        if (stack !is Cons) throw Exception(ctsubstr + estacknull)
         val y = (stack as Cons).addr
         stack = (stack as Cons).decr
-        if (stack !is Cons) throw Exception(ctmidstr + estacknull)
+        if (stack !is Cons) throw Exception(ctsubstr + estacknull)
         val x = (stack as Cons).addr
         stack = (stack as Cons).decr
-        if (x !is String) throw Exception(ctmidstr + estringexp)
-        if (y !is Double) throw Exception(ctmidstr + efloatexp)
-        if (z !is Double) throw Exception(ctmidstr + efloatexp)
+        if (x !is String) throw Exception(ctsubstr + estringexp)
+        if (y !is Double) throw Exception(ctsubstr + efloatexp)
+        if (z !is Double) throw Exception(ctsubstr + efloatexp)
         val s: String = x
         var i: Int = Math.round(y).toInt()
         var k: Int = Math.round(z).toInt()
@@ -2252,7 +2225,28 @@ class JoyVM {
         stack = Cons(y,Cons(x,stack))
     }
 
-
+    //  x1 x2 ... xn [i1 i2 ... in] [program] dictapp  -->  [dict] [program] i
+    fun fdictapp() {
+        if (stack !is Cons) throw Exception(ctdictapp + estacknull)
+        val z = (stack as Cons).addr
+        stack = (stack as Cons).decr
+        if (stack !is Cons) throw Exception(ctdictapp + estacknull)
+        val y = (stack as Cons).addr
+        stack = (stack as Cons).decr
+        if (!((y is Cons) or (y is Nil))) throw Exception(ctdictapp + elistexp)
+        var i: Any = creverse(y)
+        var x: Any
+        var d: Any = Nil()
+        while (i is Cons) {
+            if (stack !is Cons) throw Exception(ctdictapp + estacknull)
+            x = (stack as Cons).addr
+            stack = (stack as Cons).decr
+            d = Cons(i.addr,Cons(x,d))
+            i = i.decr
+        }
+        stack = Cons(d,stack)
+        efun = z  ;  eval()
+    }
 
     //  <stack> [ ... x ] nullary  --  <stack> x
     fun fnullary() {
@@ -2286,114 +2280,6 @@ class JoyVM {
     }
 
     fun freturn() {  throw Exception(ereturndo)  }
-
-    //  X [P] -> R
-    fun funary() {
-        if (stack !is Cons) throw Exception(ctunary + estacknull)
-        val p = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (stack !is Cons) throw Exception(ctunary + estacknull)
-        val x = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        val st: Any = stack
-        stack = Cons(x,st)
-        efun = p  ;  eval()
-        if (stack !is Cons) throw Exception(ctunary + estacknull)
-        val r = (stack as Cons).addr
-        //stack = (stack as Cons).decr
-        stack = Cons(r,st)
-    }
-
-    //  X1 X2 [P] -> R1 R2
-    fun funary2() {
-        if (stack !is Cons) throw Exception(ctunary2 + estacknull)
-        val p = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (stack !is Cons) throw Exception(ctunary2 + estacknull)
-        val x2 = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (stack !is Cons) throw Exception(ctunary2 + estacknull)
-        val x1 = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        val st: Any = stack
-        stack = Cons(x1,st)
-        efun = p  ;  eval()
-        if (stack !is Cons) throw Exception(ctunary2 + estacknull)
-        val r1 = (stack as Cons).addr
-        stack = Cons(x2,st)
-        efun = p  ;  eval()
-        if (stack !is Cons) throw Exception(ctunary2 + estacknull)
-        val r2 = (stack as Cons).addr
-        stack = Cons(r2,Cons(r1,st))
-    }
-
-
-    //  X1 X2 X3 [P] -> R1 R2 R3
-    fun funary3() {
-        if (stack !is Cons) throw Exception(ctunary3 + estacknull)
-        val p = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (stack !is Cons) throw Exception(ctunary3 + estacknull)
-        val x3 = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (stack !is Cons) throw Exception(ctunary3 + estacknull)
-        val x2 = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (stack !is Cons) throw Exception(ctunary3 + estacknull)
-        val x1 = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        val st: Any = stack
-        stack = Cons(x1,st)
-        efun = p  ;  eval()
-        if (stack !is Cons) throw Exception(ctunary3 + estacknull)
-        val r1 = (stack as Cons).addr
-        stack = Cons(x2,st)
-        efun = p  ;  eval()
-        if (stack !is Cons) throw Exception(ctunary3 + estacknull)
-        val r2 = (stack as Cons).addr
-        stack = Cons(x3,st)
-        efun = p  ;  eval()
-        if (stack !is Cons) throw Exception(ctunary3 + estacknull)
-        val r3 = (stack as Cons).addr
-        stack = Cons(r3,Cons(r2,Cons(r1,st)))
-    }
-
-    //  X1 X2 X3 X4 [P] -> R1 R2 R3 R4
-    fun funary4() {
-        if (stack !is Cons) throw Exception(ctunary4 + estacknull)
-        val p = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (stack !is Cons) throw Exception(ctunary4 + estacknull)
-        val x4 = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (stack !is Cons) throw Exception(ctunary4 + estacknull)
-        val x3 = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (stack !is Cons) throw Exception(ctunary4 + estacknull)
-        val x2 = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (stack !is Cons) throw Exception(ctunary4 + estacknull)
-        val x1 = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        val st: Any = stack
-        stack = Cons(x1,st)
-        efun = p  ;  eval()
-        if (stack !is Cons) throw Exception(ctunary4 + estacknull)
-        val r1 = (stack as Cons).addr
-        stack = Cons(x2,st)
-        efun = p  ;  eval()
-        if (stack !is Cons) throw Exception(ctunary4 + estacknull)
-        val r2 = (stack as Cons).addr
-        stack = Cons(x3,st)
-        efun = p  ;  eval()
-        if (stack !is Cons) throw Exception(ctunary4 + estacknull)
-        val r3 = (stack as Cons).addr
-        stack = Cons(x4,st)
-        efun = p  ;  eval()
-        if (stack !is Cons) throw Exception(ctunary4 + estacknull)
-        val r4 = (stack as Cons).addr
-        stack = Cons(r4,Cons(r3,Cons(r2,Cons(r1,st))))
-    }
 
     fun fif() {
         if (stack !is Cons) throw Exception(ctif + estacknull)
@@ -2699,7 +2585,7 @@ class JoyVM {
         stack = Cons(nreverse(a2),Cons(nreverse(a1),st))
     }
 
-    //  x [[p1] [p2] ... [pn]] constr1  -->  list
+    //  x [[p1] [p2] ... [pn]] constr1  --> list
     fun fconstr1() {
         if (stack !is Cons) throw Exception(ctconstr1 + estacknull)
         val y = (stack as Cons).addr
@@ -3099,7 +2985,7 @@ class JoyVM {
         stack = Cons(s,stack)     // SideEffect -> dump
     }
 
-    fun fhelpinfo() {  stack = Cons(helpurl,stack)  }  // SideEffect -> help
+    fun fhelpinfo() {  stack = Cons(helpPDF,stack)  }  // SideEffect -> help
 
     /*
     fun calc(txt: String) {
@@ -3180,7 +3066,6 @@ class JoyVM {
                 "swapd == [swap] dip\n" +
                 "popd == [pop] dip\n" +
                 "dupd == [dup] dip\n" +
-                "cat == concat\n" +
                 "rem == mod\n" +
                 "root == 1 swap / pow\n" +   // 27 3 root ???
                 "reci == 1 swap /\n" +
@@ -3234,7 +3119,7 @@ fun main() {
         //vm.calc("\"abc;def;ghi;jkl;\" \";\" split")
 
         //vm.calc("peter == [id 2 dup +]") // × ÷ 10 [dup dup 0 > [1 -] [10 0 / break] if] loop
-        vm.calc("help")  //  ""
+        vm.calc("10 20 30 40 50 3 collect reverse unlist 60 70") //("333 444 10 20 30 [a b c] [[['c get sq] ['b get sq] ['a get sq]] constr1] dictapp unlist")  //  ""
         //vm.calc("identlist reverse [tostr 13 chr 10 chr concat concat] map pack")
 
         //runvm = true
