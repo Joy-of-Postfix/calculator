@@ -187,7 +187,6 @@ const val ctdip2  = "dip2"
 const val ctnullary = "nullary"
 const val ctdo     = "do"
 const val ctreturn = "return"
-const val ctinfra  = "infra"
 const val ctunary  = "unary"
 const val ctunary2 = "unary2"
 const val ctunary3 = "unary3"
@@ -438,7 +437,6 @@ class JoyVM {
     var idnullary = newidentfunc(ctnullary,::fnullary)
     var iddo = newidentfunc(ctdo,::fdo)
     var idreturn = newidentfunc(ctreturn,::freturn)
-    var idinfra  = newidentfunc(ctinfra,::finfra)
     var idunary  = newidentfunc(ctunary, ::funary)
     var idunary2 = newidentfunc(ctunary2,::funary2)
     var idunary3 = newidentfunc(ctunary3,::funary3)
@@ -2289,31 +2287,6 @@ class JoyVM {
 
     fun freturn() {  throw Exception(ereturndo)  }
 
-
-    //  Using list L1 as stack, executes P and returns a new list L2.
-    //  The first element of L1 is used as the top of stack,
-    //  and after execution of P the top of stack becomes the first element of L2.
-    //
-    //  (Note that when treating lists as stacks, the first element in the list
-    //  will be the top item of the stack.)
-
-    //  L1 [P]  -->  L2
-    fun finfra() {
-        if (stack !is Cons) throw Exception(ctinfra + estacknull)
-        val p = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (stack !is Cons) throw Exception(ctinfra + estacknull)
-        val x = (stack as Cons).addr
-        stack = (stack as Cons).decr
-        if (!((x is Cons) or (x is Nil))) throw Exception(ctinfra + elistexp)
-        val st: Any = stack
-        stack = x
-        efun = p  ;  eval()
-        val z: Any = stack
-        stack = Cons(z,st)
-    }
-
-
     //  X [P] -> R
     fun funary() {
         if (stack !is Cons) throw Exception(ctunary + estacknull)
@@ -3261,7 +3234,7 @@ fun main() {
         //vm.calc("\"abc;def;ghi;jkl;\" \";\" split")
 
         //vm.calc("peter == [id 2 dup +]") // × ÷ 10 [dup dup 0 > [1 -] [10 0 / break] if] loop
-        vm.calc("11 22 33 [10 20 30 40 50] [* +] infra")  //  stack = 11 22 33 [230 40 50]
+        vm.calc("help")  //  ""
         //vm.calc("identlist reverse [tostr 13 chr 10 chr concat concat] map pack")
 
         //runvm = true
