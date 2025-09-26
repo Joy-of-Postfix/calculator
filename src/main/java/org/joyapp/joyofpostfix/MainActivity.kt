@@ -42,6 +42,7 @@ const val edoacterr  = "doAct  >>>  can't react to this number"
 var vm = JoyVM()
 var itxt = vm.prelude()
 var otxt = vm.deflines(vm.splitTo(itxt,"\n"))
+var apprestarted: Boolean = true
 
 
 class MainActivity : AppCompatActivity() {
@@ -417,6 +418,10 @@ class MainActivity : AppCompatActivity() {
                 val txt: String = et1.text.toString()
                 val n = Selection.getSelectionStart(et1.getText()) // ???
                 val lineN = selectline(txt,n)
+                if (apprestarted) {
+                    apprestarted = false
+                    val xtxt = vm.deflines(vm.splitTo(txt,"\n"))
+                }
                 if (runvm) runvm = false
                 else {  // hier ist der Thread
                     val thread: Thread = object : Thread(null, null, "joyapp", 50000000) {
