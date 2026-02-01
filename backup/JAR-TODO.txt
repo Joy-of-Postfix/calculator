@@ -1,0 +1,1 @@
+Mit welchem Befehl mit welchen flags archiviert man mit jar ein Java-Archiv?
