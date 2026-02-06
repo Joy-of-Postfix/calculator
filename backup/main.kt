@@ -1,10 +1,8 @@
-package compose.project.joyofturtlegraphics
-
+package com.example.joywtg2
 
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 
-// ----------------------App.kt---------------------------------
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -20,12 +18,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.tooling.preview.Preview
 
@@ -272,6 +272,7 @@ const val cttest = "test"   //  for test!!!
 // ----- Joy is a stack-based language
 var stack: Any = Nil()
 var quotenext: Boolean = false
+var trail: Any = Nil()
 
 class Nil {
     constructor() {}
@@ -517,6 +518,12 @@ class JoyVM {
     var idhelpinfo = newidentfunc(cthelpinfo,::fhelpinfo)
     var idgc = newidentfunc(ctgc,::fgc)
     var idtest = newidentfunc(cttest,::ftest)
+    var idpen    = identlistPut("pen",Nil())
+    var idcolor  = identlistPut("color",Nil())
+    //var idsize   = identlistPut("size",Nil())
+    var idbrush  = identlistPut("brush",Nil())
+    var idcircle = identlistPut("circle",Nil())
+    var idrect   = identlistPut("rect",Nil())
 
     constructor() {  init()  }
 
@@ -3232,7 +3239,7 @@ class JoyVM {
                 "ifcons  == [consp] dip2 if\n" +
                 "iflist  == [list] dip2 if\n" +
                 "ifnull  == [null] dip2 if\n" +
-                "init == dup size pred take\n" +
+                "restr == dup size pred take\n" +    // in Doku umbenennen von init
                 "last == dup size at\n" +
                 "rolldownd == [rolldown] dip\n" +
                 "rollupd == [rollup] dip\n" +
@@ -3264,40 +3271,70 @@ class JoyVM {
                 //"frename == 9 [ ] '!\n" +
                 "timestamp == 10 [ ] '!\n" +
                 "date == 11 [ ] '!\n" +
-                "viewurl == 12 [ ] '!\n" +
-                "quit == 13 [ ] '!\n" +
-                "input == 14 [ ] '!\n" +
+                "# viewurl == 12 [ ] '!\n" +
+                "# quit == 13 [ ] '!\n" +
+                "# input == 14 [ ] '!\n" +
                 "run == 15 [ ] '!\n" +
+                "showgraph == 16 [ ] '!\n" +
                 "dump  == identdump print\n" +
                 "words == identlist print\n" +
                 "help  == \"JoyOfPostfix.bat\" run\n" +
-                "# google == \"www.google.de\" viewurl\n"
-
+                "# google == \"www.google.de\" viewurl\n" +
+                "offs == id\n" +
+                "2pi == pi pi +\n" +
+                "init ( -- turtle) == [stack [] x 0 y 0 angle 0 pen true color 0 size 1 brush 16777215]\n" +
+                "draw (turtle -- ) == 'stack get reverse showgraph\n" +
+                "moveto (dict x y -- dict) == rotate dup 'stack get 3 index swons 4 index swons" +
+                "   'stack swap put swap 'x swap put swap 'y swap put\n" +
+                "moverel (dict relx rely -- dict) == 3 index 'y get + swap 3 index 'x get + swap moveto\n" +
+                "move (dict rel -- dict) == 2 index 'angle get(dict rel angle)" +
+                "                           dup cos 3 index * 4 index 'x get + " +
+                "                           2 index sin 4 index * 5 index 'y get +" +
+                "                           rotate pop rotate pop (dict   sumrelbogx sumrelbogy) moveto\n" +
+                "turnto (dict ang -- dict) == offs doturnto\n" +
+                "doturnto == dup 2pi / int 2pi * - 'angle swap put\n" +
+                "turn (dict ang -- dict) == offs 2 index 'angle get + doturnto\n" +
+                "penup (dict -- dict) == dup 'stack get 'pen swons false swons 'stack swap put 'pen false put\n" +
+                "pendown (dict -- dict) == dup 'stack get 'pen swons true swons 'stack swap put 'pen true put\n" +
+                "pencolor (dict col -- dict) == swap dup 'stack get 'color swons 3 index swons 'stack swap put swap 'color swap put\n" +
+                "pensize (dict size -- dict) == swap dup 'stack get 'size swons 3 index swons 'stack swap put swap 'size swap put\n" +
+                "brushcolor (dict col -- dict) == swap dup 'stack get 'brush swons 3 index swons 'stack swap put swap 'brush swap put\n" +
+                "circle (dict rad -- dict) == swap dup 'stack get 'circle swons swap rotate swons 'stack swap put\n" +
+                "rectangle (dict -- dict) == dup 'stack get 'rect swons [] swons 'stack swap put (mit rect)\n" +
+                "colors == [red 255 black 0 blue 16711680 white 16777215 green 32768 aqua 16776960" +
+                "   darkgray 8421504 fuchsia 16711935 gray 8421504 lime 65280 lightgray 12632256 maroon 128" +
+                "   navy 8388608 olive 32896 purple 8388736 silver 12632256 teal 8421376 yellow 65535 gold 55295 orange 42495]\n" +
+                "start == init penup 250 -250 moveto pendown 90 rad turnto\n" +
+                "; == dup (to copy the last drawing) dup 'pen get [turtle] [] if draw\n" +
+                "turtle == 1 pensize colors 'red get pencolor 120 rad turn 12 move 210 rad turn 20 move -120 rad turn 20 move " +
+                "210 rad turn 11 move\n" +
+                "cs == start ;\n"
     }
 
 }  // class JoyVM
 
 // ----- constants
-const val cterrorcol = "ERROR:   "
-const val ctnullpar  = "(null)"
-const val ctjoypath  = "Joy-Files"
+const val cterrorcol  = "ERROR:   "
+const val ctnullpar   = "(null)"
+const val ctjoypath   = "Joy-Files"
 
 // ----- for monad side-effects
-const val ctdot      = "."
-const val ctprint    = "print"
-const val ctload     = "load"
-const val ctsave     = "save"
-const val ctloadtext = "loadtext"
-const val ctsavetext = "savetext"
-const val ctfremove  = "fremove"
-const val ctfrename  = "frename"
-const val ctviewurl  = "viewurl"
-const val ctrun      = "run"
+const val ctdot       = "."
+const val ctprint     = "print"
+const val ctload      = "load"
+const val ctsave      = "save"
+const val ctloadtext  = "loadtext"
+const val ctsavetext  = "savetext"
+const val ctfremove   = "fremove"
+const val ctfrename   = "frename"
+const val ctviewurl   = "viewurl"
+const val ctrun       = "run"
+const val ctshowgraph = "showgraph"
 
 // ----- error messages
-const val errinfname =      "  >>>  error in filename"
-const val errnofile  =      "  >>>  file not found"
-const val edoacterr  = "doAct  >>>  can't react to this number"
+const val errinfname  =      "  >>>  error in filename"
+const val errnofile   =      "  >>>  file not found"
+const val edoacterr   = "doAct  >>>  can't react to this number"
 
 var vm: JoyVM = JoyVM()
 var itxt: String = vm.prelude()
@@ -3440,28 +3477,26 @@ fun doAct() {
                 //et1.setText(rtxt)
 
                 val txt = vm.deflines(splitLines(rtxt))
+                intfstate.setTextAndPlaceCursorAtEnd(rtxt)
                 //stack = Cons(splitLines(rtxt),stack)
                 // runOnUiThread {  et1.setText(rtxt)  }
             }
-
-            /*
             4.toLong()  -> {  // save
                 if (stack !is Cons) throw Exception(ctsave+ctact + estacknull)
                 val fnm = (stack as Cons).addr
                 stack = (stack as Cons).decr
                 val wname = when (fnm) {
-                    is Ident  -> fnm.pname.substringAfterLast("/")
-                    is String -> fnm.substringAfterLast("/")
+                    is Ident  -> lastName(fnm.pname)
+                    is String -> lastName(fnm)
                     else      -> ""     }
                 if (wname=="") throw Exception(ctsave+ctact + errinfname)
-                val wpath = applicationContext.filesDir
+                val wpath = Paths.get("").toAbsolutePath().toString() // applicationContext.filesDir
                 val wdir = File(wpath,ctjoypath)
                 if (!wdir.exists()) wdir.mkdir()
                 val wfile = File(wdir,wname)
-                val wtxt = et1.text.toString()
+                val wtxt: String = intfstate.text.toString() // et1.text.toString()
                 wfile.writeText(wtxt)
             }
-            */
             5.toLong()  -> {  // loadtext
                 if (stack !is Cons) throw Exception(ctloadtext+ctact + estacknull)
                 val fnm = (stack as Cons).addr
@@ -3584,19 +3619,34 @@ fun doAct() {
                 startActivity(browserIntent)
             }
             */
+            /*
             13.toLong() -> {  // quit
                 jquit = true
             }
+            */
+            /*
             14.toLong() -> {  // input
                 val str = readln().toString()
                 stack = Cons(str,stack)
             }
-            15.toLong() -> {
+            */
+            15.toLong() -> {  // run
                 if (stack !is Cons) throw Exception(ctrun+ctact + estacknull)
                 val s = (stack as Cons).addr
                 stack = (stack as Cons).decr
                 if (s !is String) throw Exception(ctrun+ctact + estringexp)
                 Runtime.getRuntime().exec(s.split(" ").toTypedArray())
+            }
+            16.toLong() -> {  // showgraph
+                if (stack !is Cons) throw Exception(ctshowgraph + ctact + estacknull)
+                val i = (stack as Cons).addr
+                stack = (stack as Cons).decr
+                if ((i is Cons) or (i is Nil)) {
+                    trail = i
+                    //Draw
+                    // repaint oder reDraw oder Canvas-bezug
+                } else throw Exception(ctshowgraph + ctact + elistexp)
+                //println(toValue(i))
             }
             else -> {  throw Exception(edoacterr+" - "+n.toString())  }
         }
@@ -3635,7 +3685,80 @@ fun mainxyz(args: Array<String>) {
     println("Program arguments: ${args.joinToString()}")
 }
 
+const val edrawnopair        = "  >>>  in trail pair expected"
+const val edrawxynofloat     = "  >>>  for x y float expected"
+const val edrawpennobool     = "  >>>  for pen bool expected"
+const val edrawcolornofloat  = "  >>>  for color float expected"
+const val edrawsizenofloat   = "  >>>  for size float expected"
+const val edrawcirclenofloat = "  >>>  for circle float expected"
+
+const val edrawprotocolerr   = "  >>>  protocol error"
+
 fun DrawScope.onDraw() {
+    var i: Any = trail
+    var p: Any = Nil()
+    var q: Any = Nil()
+    var pendown: Boolean = true
+    var pencolor: Color = Color.Black
+    var pensize: Float = 1.0F
+    var x0: Float = 0.0F
+    var y0: Float = 0.0F
+    var x1: Float = 0.0F
+    var y1: Float = 0.0F
+    try {
+        while (i is Cons) {
+            p = (i as Cons).addr
+            i = (i as Cons).decr
+            if (i !is Cons) throw Exception(edrawnopair)
+            q = (i as Cons).addr
+            i = (i as Cons).decr
+            when (p) {
+                is Double   -> {
+                    if (q !is Double) throw Exception(edrawxynofloat)
+                    x1 = x0           ;  y1 = y0
+                    x0 = p.toFloat()  ;  y0 = q.toFloat()
+                    if (pendown) {
+                        drawLine( pencolor,
+                            Offset(x1,-y1),
+                            Offset(x0,-y0),
+                            strokeWidth=pensize,
+                            cap=StrokeCap.Round )
+                    }  }
+                vm.idpen    -> {
+                    if (q is Boolean) pendown = q
+                    else throw Exception(edrawpennobool)
+                }
+                vm.idcolor  -> {
+                    if (q is Double) {
+                        val c = Color(Math.round(q))
+                        pencolor = Color(red=c.blue,green=c.green,blue=c.red,alpha=1f)
+                    } else throw Exception(edrawcolornofloat)
+                }
+                vm.idsize   -> {
+                    if (q is Double) pensize = q.toFloat()
+                    else throw Exception(edrawsizenofloat)
+                }
+                vm.idbrush  -> {}
+                vm.idcircle -> {
+                    if (q !is Double) throw Exception(edrawcirclenofloat)
+                    val r = q.toFloat()
+                    if (pendown) {
+                        drawCircle(pencolor,r,Offset(x0,-y0))
+                    }  }
+                vm.idrect   -> {
+                    if (pendown) {
+                        drawRect( pencolor,
+                            Offset(x1,-y1),
+                            Size(x0-x1,-(y0-y1)) )
+                    }  }
+                else        -> throw Exception(edrawprotocolerr)
+            }  }
+    } catch (e: Exception) {
+        runvm = false  // ???
+        outtfstate.setTextAndPlaceCursorAtEnd(cterrorcol+e.message)
+    }
+
+
     /*
     drawOval(Color.Green)
     drawLine(Color.Blue,Offset(20.0.toFloat(),20.0.toFloat()),
@@ -3688,7 +3811,6 @@ fun doCalc() {
 @Preview
 fun App() {
     MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.surface //primaryContainer
@@ -3707,8 +3829,8 @@ fun App() {
                     outtfstate.setTextAndPlaceCursorAtEnd(outtxt)
                 }
                 ) { Text(".s") }
-                Button( onClick = {  }
-                ) { Text("LOAD") }
+                // Button( onClick = {  }
+                // ) { Text("LOAD") }
             }
             TextField(state=intfstate,     // Outlined...
                 readOnly=false,
@@ -3736,7 +3858,7 @@ fun App() {
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
-        title = "Joy of Turtle-Graphics",
+        title = "Joy with Turtle Graphics",
         resizable=true,
     ) { App() }
 }
